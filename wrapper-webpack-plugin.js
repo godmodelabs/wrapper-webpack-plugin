@@ -1,3 +1,7 @@
+/* fix based on
+ * https://github.com/levp/wrapper-webpack-plugin/issues/11#issuecomment-708215938
+ * and https://github.com/webpack/webpack-sources/issues/92#issuecomment-709601572
+ */
 'use strict';
 
 const ConcatSource = require("webpack-sources").ConcatSource;
@@ -31,49 +35,35 @@ class WrapperPlugin {
 		const footer = this.footer;
 		const tester = {test: this.test};
 
-		compiler.hooks.compilation.tap('WrapperPlugin', (compilation) => {
-			if (this.afterOptimizations) {
-				compilation.hooks.afterOptimizeChunkAssets.tap('WrapperPlugin', (chunks) => {
-					wrapChunks(compilation, chunks, footer, header);
-				});
-			} else {
-				compilation.hooks.optimizeChunkAssets.tapAsync('WrapperPlugin', (chunks, done) => {
-					wrapChunks(compilation, chunks, footer, header);
-					done();
-				});
-			}
+		compiler.hooks.thisCompilation.tap('WrapperPlugin', (compilation) => {
+			// webpack 5: use new processAssets
+			compilation.hooks.processAssets.tap(
+				{
+					name: 'WrapperPlugin',
+					stage: compilation.PROCESS_ASSETS_STAGE_ADDITIONS,
+				},
+				(chunks) => wrapChunks(compilation, chunks),
+			);
 		});
 
 		function wrapFile(compilation, fileName, chunkHash) {
 			const headerContent = (typeof header === 'function') ? header(fileName, chunkHash) : header;
 			const footerContent = (typeof footer === 'function') ? footer(fileName, chunkHash) : footer;
 
-			compilation.assets[fileName] = new ConcatSource(
+			compilation.updateAsset(fileName, new ConcatSource(
 				String(headerContent),
-				compilation.assets[fileName],
+				compilation.getAsset(fileName).source.buffer().toString(),
 				String(footerContent),
-			);
+			));
 		}
 
 		function wrapChunks(compilation, chunks) {
-			for (const chunk of chunks) {
-				if (!chunk.rendered) {
-					// Skip already rendered (cached) chunks
-					// to avoid rebuilding unchanged code.
-					continue;
+			Object.keys(chunks).forEach(fileName => {
+				if (ModuleFilenameHelpers.matchObject(tester, fileName)) {
+					wrapFile(compilation, fileName, compilation.hash);
 				}
-
-				const args = {
-					hash: compilation.hash,
-					chunkhash: chunk.hash,
-				};
-				for (const fileName of chunk.files) {
-					if (ModuleFilenameHelpers.matchObject(tester, fileName)) {
-						wrapFile(compilation, fileName, args);
-					}
-				}
-			}
-		} // wrapChunks
+			});
+		}
 	}
 }
 

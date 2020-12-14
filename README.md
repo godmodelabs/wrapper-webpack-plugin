@@ -2,13 +2,15 @@
 
 ## Installation
 
-Install locally using npm:  
+Install locally using npm:
 `npm i wrapper-webpack-plugin`
 
 #### Webpack compatibility
 
+**BGO Fix**: Only works with Webpack >=5
+
 Version 2 of this plugin only works with webpack >=4.\
-For webpack <4 use [version 1](https://github.com/levp/wrapper-webpack-plugin/tree/v1) of the plugin with `npm i -D wrapper-webpack-plugin@1` 
+For webpack <4 use [version 1](https://github.com/levp/wrapper-webpack-plugin/tree/v1) of the plugin with `npm i -D wrapper-webpack-plugin@1`
 
 ## Usage
 
@@ -19,8 +21,8 @@ name of the output file as an argument.
 
 An optional `test` property (a string or a `RegExp` object) can control which output files are affected; otherwise all output files will be wrapped.
 
-*New in 2.1:*  
-The optional `afterOptimization` property can be used to avoid having the added text affected by the optimization stage, e.g. if you don't want it to be minified. 
+*New in 2.1:*
+The optional `afterOptimization` property can be used to avoid having the added text affected by the optimization stage, e.g. if you don't want it to be minified.
 
 ## API
 
@@ -42,11 +44,11 @@ const WrapperPlugin = require('wrapper-webpack-plugin');
 
 module.exports = {
   // other webpack config here
-  
+
   plugins: [
     // strict mode for the whole bundle
     new WrapperPlugin({
-      test: /\.js$/, // only wrap output of bundle files with '.js' extension 
+      test: /\.js$/, // only wrap output of bundle files with '.js' extension
       header: '(function () { "use strict";\n',
       footer: '\n})();'
     })
@@ -63,7 +65,7 @@ const WrapperPlugin = require('wrapper-webpack-plugin');
 
 module.exports = {
   // other webpack config here
-  
+
   plugins: [
     new WrapperPlugin({
       header: function (fileName) {
@@ -83,7 +85,7 @@ const WrapperPlugin = require('wrapper-webpack-plugin');
 
 module.exports = {
   // other webpack config here
-	
+
   output: {
     filename: '[name].[chunkhash].js'
   },
@@ -92,7 +94,7 @@ module.exports = {
       header: `(function (FILE_NAME, BUILD_HASH, CHUNK_HASH) {`,
       footer(fileName, args) {
         return `})('${fileName}', '${args.hash}', '${args.chunkhash}');`;
-        // note: args.hash and args.chunkhash correspond to the [hash] and [chunkhash] 
+        // note: args.hash and args.chunkhash correspond to the [hash] and [chunkhash]
         // placeholders you can specify in the output.filename option.
       }
     })
