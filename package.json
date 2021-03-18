@@ -1,15 +1,12 @@
 {
   "name": "wrapper-webpack-plugin",
-  "version": "2.2.0-beta.0",
+  "version": "2.2.1",
   "description": "Wraps output files (chunks) with custom text or code.",
   "main": "wrapper-webpack-plugin.js",
   "author": "levp",
   "license": "ISC",
   "peerDependencies": {
     "webpack": ">=2"
-  },
-  "dependencies": {
-    "webpack-sources": "^1.1.0"
   },
   "files": [
     "wrapper-webpack-plugin.js"
@@ -20,10 +17,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/levp/wrapper-webpack-plugin.git"
+    "url": "git+https://github.com/godmodelabs/wrapper-webpack-plugin.git"
   },
   "bugs": {
-    "url": "https://github.com/levp/wrapper-webpack-plugin/issues"
+    "url": "https://github.com/godmodelabs/wrapper-webpack-plugin/issues"
   },
-  "homepage": "https://github.com/levp/wrapper-webpack-plugin#readme"
+  "homepage": "https://github.com/godmodelabs/wrapper-webpack-plugin#readme",
+  "devDependencies": {
+    "offset-sourcemap-lines": "^1.0.1"
+  }
 }

@@ -4,8 +4,8 @@
  */
 'use strict';
 
-const ConcatSource = require("webpack-sources").ConcatSource;
 const ModuleFilenameHelpers = require("webpack/lib/ModuleFilenameHelpers");
+var offsetLines = require('offset-sourcemap-lines');
 
 class WrapperPlugin {
 
@@ -50,11 +50,26 @@ class WrapperPlugin {
 			const headerContent = (typeof header === 'function') ? header(fileName, chunkHash) : header;
 			const footerContent = (typeof footer === 'function') ? footer(fileName, chunkHash) : footer;
 
-			compilation.updateAsset(fileName, new ConcatSource(
+			const {source, map} = compilation.getAsset(fileName).source.sourceAndMap();
+
+			const offset = headerContent.split(/\r\n|\r|\n/).length - 1;
+			const offsetMap = offsetLines(map, offset);
+
+			const wrappedSource = new compiler.webpack.sources.ConcatSource(
 				String(headerContent),
-				compilation.getAsset(fileName).source.buffer().toString(),
+				source.toString(),
 				String(footerContent),
-			));
+			);
+
+			const sourceWithMap = new compiler.webpack.sources.SourceMapSource(
+				wrappedSource.source().toString(),
+				fileName,
+				offsetMap,
+				source,
+				map,
+				false
+			);
+			compilation.updateAsset(fileName, sourceWithMap);
 		}
 
 		function wrapChunks(compilation, chunks) {
