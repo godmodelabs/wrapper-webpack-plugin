@@ -23,7 +23,7 @@
     "url": "https://github.com/godmodelabs/wrapper-webpack-plugin/issues"
   },
   "homepage": "https://github.com/godmodelabs/wrapper-webpack-plugin#readme",
-  "devDependencies": {
+  "dependencies": {
     "offset-sourcemap-lines": "^1.0.1"
   }
 }
