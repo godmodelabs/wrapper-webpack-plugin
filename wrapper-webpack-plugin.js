@@ -51,25 +51,27 @@ class WrapperPlugin {
 			const footerContent = (typeof footer === 'function') ? footer(fileName, chunkHash) : footer;
 
 			const {source, map} = compilation.getAsset(fileName).source.sourceAndMap();
-
-			const offset = headerContent.split(/\r\n|\r|\n/).length - 1;
-			const offsetMap = offsetLines(map, offset);
-
 			const wrappedSource = new compiler.webpack.sources.ConcatSource(
 				String(headerContent),
 				source.toString(),
 				String(footerContent),
 			);
+			if (map) {
+				const offset = headerContent.split(/\r\n|\r|\n/).length - 1;
+				const offsetMap = offsetLines(map, offset);
 
-			const sourceWithMap = new compiler.webpack.sources.SourceMapSource(
-				wrappedSource.source().toString(),
-				fileName,
-				offsetMap,
-				source,
-				map,
-				false
-			);
-			compilation.updateAsset(fileName, sourceWithMap);
+				const sourceWithMap = new compiler.webpack.sources.SourceMapSource(
+					wrappedSource.source().toString(),
+					fileName,
+					offsetMap,
+					source,
+					map,
+					false
+				);
+				compilation.updateAsset(fileName, sourceWithMap);
+			} else {
+				compilation.updateAsset(fileName, wrappedSource);
+			}
 		}
 
 		function wrapChunks(compilation, chunks) {
